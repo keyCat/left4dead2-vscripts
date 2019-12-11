@@ -20,5 +20,5 @@ All rights and credit for the code in these files belongs to their respective ow
 * SR69MMJC (`community2.nut`)
 * Winded (`community3.nut`)
 * Karma Jockey (`community2.nut`, `community4.nut`)
-* ProdigySim (`community6.nut`)
+* ProdigySim (`community6.nut`, `globaltimers.nut`, `gamestate_model.nut`, `utils.nut`, `modules.nut`)
 * Valve Corporation (everything)
