@@ -4,7 +4,7 @@ This repository contains decrypted [L4D2 VScripts](https://developer.valvesoftwa
 * `left4dead2`
 * `left4dead2_dlc1`
 * `left4dead2_dlc2`
-* `left4dead_dlc3`
+* `left4dead2_dlc3`
 
 All rights and credit for the code in these files belongs to their respective owners:
 
