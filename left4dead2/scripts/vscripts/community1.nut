@@ -2,8 +2,33 @@
 Msg("Activating Special Delivery\n");
 Msg("Made by Rayman1103\n");
 
+if ( !IsModelPrecached( "models/infected/smoker.mdl" ) )
+	PrecacheModel( "models/infected/smoker.mdl" );
+if ( !IsModelPrecached( "models/infected/smoker_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/smoker_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/boomer.mdl" ) )
+	PrecacheModel( "models/infected/boomer.mdl" );
+if ( !IsModelPrecached( "models/infected/boomer_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/boomer_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/boomette.mdl" ) )
+	PrecacheModel( "models/infected/boomette.mdl" );
+if ( !IsModelPrecached( "models/infected/hunter.mdl" ) )
+	PrecacheModel( "models/infected/hunter.mdl" );
+if ( !IsModelPrecached( "models/infected/hunter_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/hunter_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/limbs/exploded_boomette.mdl" ) )
+{
+	PrecacheModel( "models/infected/limbs/exploded_boomette.mdl" );
+	::community1_no_female_boomers <- true;
+}
+if ( !IsModelPrecached( "models/infected/spitter.mdl" ) )
+	PrecacheModel( "models/infected/spitter.mdl" );
+if ( !IsModelPrecached( "models/infected/jockey.mdl" ) )
+	PrecacheModel( "models/infected/jockey.mdl" );
+if ( !IsModelPrecached( "models/infected/charger.mdl" ) )
+	PrecacheModel( "models/infected/charger.mdl" );
 
-DirectorOptions <-
+MutationOptions <-
 {
 	ActiveChallenge = 1
 
@@ -12,11 +37,15 @@ DirectorOptions <-
 	cm_MaxSpecials = 8
 	cm_ProhibitBosses = false
 	cm_SpecialRespawnInterval = 0
+	cm_AggressiveSpecials = false
 
 	SpecialInitialSpawnDelayMin = 0
 	SpecialInitialSpawnDelayMax = 5
 	ShouldAllowSpecialsWithTank = true
 	EscapeSpawnTanks = true
+	MobMinSize = 0
+	MobMaxSize = 0
+	NoMobSpawns = true
 
 	SmokerLimit = 2
 	BoomerLimit = 2
@@ -55,163 +84,174 @@ DirectorOptions <-
 	}
 }
 
-disabled_car_alarms <- false;
-disabled_c1m1_tanks <- false;
-disabled_c7m1_bosses <- false;
-gave_l4d1_survivors_pistols <- false;
-released_l4d1_survivors <- false;
-removed_common_spawns <- false;
-removed_impound_instructor <- false;
-function Update()
+MutationState <-
 {
-	if( !removed_common_spawns )
-    {
-		EntFire( "intro_zombie_spawn", "kill" );
-		EntFire( "zspawn_lobby_fall_1", "kill" );
-		EntFire( "zspawn_lobby_fall_2", "kill" );
-		EntFire( "zspawn_lobby_fall_3", "kill" );
-		EntFire( "zspawn_lobby_fall_4", "kill" );
-		EntFire( "zspawn_lobby_fall_5", "kill" );
-		EntFire( "zspawn_fall_1", "kill" );
-		EntFire( "zspawn_fall_2", "kill" );
-		EntFire( "zombie_outro", "kill" );
-		EntFire( "escape_zombie", "kill" );
-		EntFire( "zspawn_zombie_safe", "kill" );
-		EntFire( "zspawn_zombie_safe2", "kill" );
-		EntFire( "spawn_zombie_van", "kill" );
-		EntFire( "spawn_zombie_alarm", "kill" );
-		EntFire( "spawn_zombie_alarm2", "kill" );
-		EntFire( "zombie_spawn1", "kill" );
-		EntFire( "spawn_zombie_run", "kill" );
-		EntFire( "spawn_zombie_end", "kill" );
-		EntFire( "infected_spawner", "kill" );
-		EntFire( "infected_spawner2", "kill" );
-		EntFire( "spawn_zombie_location1", "kill" );
-		EntFire( "spawn_zombie_location2", "kill" );
-		EntFire( "spawn_zombie_location3", "kill" );
-		EntFire( "spawn_zombie_location4", "kill" );
-		EntFire( "spawn_zombie_location5", "kill" );
-		EntFire( "spawn_zombie_location6", "kill" );
-		removed_common_spawns = true;
-    }
-	if( Director.GetCommonInfectedCount() >= 1 )
+	SIModelsBase = [ [ "models/infected/smoker.mdl", "models/infected/smoker_l4d1.mdl" ],
+					[ "models/infected/boomer.mdl", "models/infected/boomer_l4d1.mdl", "models/infected/boomette.mdl" ],
+						[ "models/infected/hunter.mdl", "models/infected/hunter_l4d1.mdl" ],
+							[ "models/infected/spitter.mdl" ],
+								[ "models/infected/jockey.mdl" ],
+									[ "models/infected/charger.mdl" ] ]
+	SIModels = [ [ "models/infected/smoker.mdl", "models/infected/smoker_l4d1.mdl" ],
+				[ "models/infected/boomer.mdl", "models/infected/boomer_l4d1.mdl", "models/infected/boomette.mdl" ],
+					[ "models/infected/hunter.mdl", "models/infected/hunter_l4d1.mdl" ],
+						[ "models/infected/spitter.mdl" ],
+							[ "models/infected/jockey.mdl" ],
+								[ "models/infected/charger.mdl" ] ]
+	ModelCheck = [ false, false, false, false, false, false ]
+	LastBoomerModel = ""
+	BoomersChecked = 0
+}
+
+function RemoveInfectedFailsafe()
+{
+	if ( Director.GetCommonInfectedCount() > 0 )
 	{
-		z <- null;
-		while( ( z = Entities.FindByClassname( z, "infected" ) ) != null )
+		local infected = null;
+		while ( infected = Entities.FindByClassname( infected, "infected" ) )
 		{
-			DoEntFire( "!self", "kill", "", 0, null, z );
+			if ( infected.IsValid() )
+				infected.Kill();
 		}
 	}
-	if( !disabled_c1m1_tanks && Entities.FindByName( null, "c1m1_c1m2_changelevel" ) )
-    {
-		DirectorOptions.TankLimit <- 0;
-		disabled_c1m1_tanks = true;
-    }
-	if( !disabled_c7m1_bosses && Entities.FindByName( null, "spawn_train_tank_coop" ) )
-    {
-		DirectorOptions.cm_ProhibitBosses <- true;
-		disabled_c7m1_bosses = true;
-    }
-	if( !released_l4d1_survivors && Entities.FindByName( null, "l4d1_survivors_relay" ) && Director.HasAnySurvivorLeftSafeArea() )
-    {
-		EntFire( "l4d1_spawn_trigger", "kill" );
-		EntFire( "l4d1_survivors_relay", "trigger" );
-		EntFire( "!francis", "releasefromsurvivorposition", "", 1 );
-		EntFire( "!louis", "releasefromsurvivorposition", "", 1 );
-		EntFire( "!zoey", "releasefromsurvivorposition", "", 1 );
-		released_l4d1_survivors = true;
-    }
-	if( !gave_l4d1_survivors_pistols && released_l4d1_survivors == true && Entities.FindByName( null, "!francis" ) )
+}
+
+function LeftSafeAreaThink()
+{
+	local player = null;
+	while ( player = Entities.FindByClassname( player, "player" ) )
 	{
-		L4D1Survivors <- 
-		[
-			"!bill"
-			"!francis" 
-			"!zoey" 
-			"!louis"
-		]
-
-		L4D1Survivor <- null;
-		Pistol <- null;
-		Pistol = Entities.FindByClassname( Pistol, "weapon_pistol_spawn" );
-
-		foreach(s in L4D1Survivors)
+		if ( ( !player.IsValid() ) || ( NetProps.GetPropInt( player, "m_iTeamNum" ) != 2 ) )
+			continue;
+		
+		if ( ResponseCriteria.GetValue( player, "instartarea" ) == "0" )
 		{
-			while( L4D1Survivor = Entities.FindByName( L4D1Survivor, s ) )
+			SessionOptions.cm_MaxSpecials = 8;
+			ScriptedMode_RemoveUpdate( g_ModeScript.LeftSafeAreaThink );
+			break;
+		}
+		else
+			continue;
+	}
+}
+
+function OnGameEvent_round_start_post_nav( params )
+{
+	local spawner = null;
+	while ( spawner = Entities.FindByClassname( spawner, "info_zombie_spawn" ) )
+	{
+		if ( spawner.IsValid() )
+		{
+			local population = NetProps.GetPropString( spawner, "m_szPopulation" );
+			
+			if ( population == "boomer" || population == "hunter" || population == "smoker" || population == "jockey"
+				|| population == "charger" || population == "spitter" || population == "new_special" || population == "church"
+					|| population == "tank" || population == "witch" || population == "witch_bride" || population == "river_docks_trap" )
+				continue;
+			else
+				spawner.Kill();
+		}
+	}
+	
+	if ( Director.GetMapName() == "c1m1_hotel" )
+		DirectorOptions.cm_TankLimit <- 0;
+	else if ( Director.GetMapName() == "c5m5_bridge" || Director.GetMapName() == "c6m3_port" )
+		DirectorOptions.cm_MaxSpecials = 0;
+	else if ( Director.GetMapName() == "c7m1_docks" )
+		DirectorOptions.cm_ProhibitBosses = true;
+}
+
+function OnGameEvent_player_left_safe_area( params )
+{
+	ScriptedMode_AddUpdate( RemoveInfectedFailsafe );
+	
+	local player = GetPlayerFromUserID( params["userid"] );
+	if ( !player )
+		return;
+	
+	local instartarea = ResponseCriteria.GetValue( player, "instartarea" );
+	if ( instartarea == "1" )
+	{
+		SessionOptions.cm_MaxSpecials = 0;
+		ScriptedMode_AddUpdate( LeftSafeAreaThink );
+	}
+}
+
+function OnGameEvent_triggered_car_alarm( params )
+{
+	if ( !Director.IsTankInPlay() )
+	{
+		DirectorOptions.cm_AggressiveSpecials = true;
+		ZSpawn( { type = 8 } );
+		DirectorOptions.cm_AggressiveSpecials = false;
+	}
+	
+	StartAssault();
+}
+
+function OnGameEvent_finale_start( params )
+{
+	if ( Director.GetMapName() == "c6m3_port" )
+		DirectorOptions.cm_MaxSpecials = 8;
+}
+
+function OnGameEvent_gauntlet_finale_start( params )
+{
+	if ( Director.GetMapName() == "c5m5_bridge" )
+		DirectorOptions.cm_MaxSpecials = 8;
+}
+
+function OnGameEvent_player_spawn( params )
+{
+	local player = GetPlayerFromUserID( params["userid"] );
+	
+	if ( ( !player ) || ( player.IsSurvivor() ) )
+		return;
+	
+	local zombieType = player.GetZombieType();
+	if ( zombieType > 6 )
+		return;
+	
+	local modelName = player.GetModelName();
+	
+	if ( !SessionState.ModelCheck[ zombieType - 1 ] )
+	{
+		if ( (zombieType == 2) && !("community1_no_female_boomers" in getroottable()) )
+		{
+			if ( SessionState.LastBoomerModel != modelName )
 			{
-				DoEntFire( "!self", "use", "", 0,  L4D1Survivor, Pistol );
+				SessionState.LastBoomerModel = modelName;
+				SessionState.BoomersChecked++;
 			}
+			if ( SessionState.BoomersChecked > 1 )
+				SessionState.ModelCheck[ zombieType - 1 ] = true;
 		}
-		gave_l4d1_survivors_pistols = true;
+		else
+			SessionState.ModelCheck[ zombieType - 1 ] = true;
+		
+		if ( SessionState.SIModelsBase[zombieType - 1].find( modelName ) == null )
+		{
+			SessionState.SIModelsBase[zombieType - 1].append( modelName );
+			SessionState.SIModels[zombieType - 1].append( modelName );
+		}
 	}
-	if( !disabled_car_alarms && Director.HasAnySurvivorLeftSafeArea() )
-    {
-		ent <- null;
-		while( ( ent = Entities.FindByModel( ent, "models/props_vehicles/cara_95sedan_glass_alarm.mdl" ) ) != null )
-		{
-			DoEntFire( "!self", "kill", "", 0, null, ent );
-		}
-		ent <- null;
-		while( ( ent = Entities.FindByModel( ent, "models/props_vehicles/cara_95sedan_glass.mdl" ) ) != null )
-		{
-			DoEntFire( "!self", "enable", "", 0, null, ent );
-		}
-		EntFire( "prop_car_alarm", "disable" );
-		EntFire( "instructor_impound", "kill" );
-		EntFire( "InstanceAuto5-remark_caralarm", "kill" );
-		EntFire( "alarm1-remark_caralarm", "kill" );
-		EntFire( "alarm2-remark_caralarm", "kill" );
-		EntFire( "alarm3-remark_caralarm", "kill" );
-		EntFire( "alarm4-remark_caralarm", "kill" );
-		EntFire( "alarm5-remark_caralarm", "kill" );
-		EntFire( "alarm6-remark_caralarm", "kill" );
-		EntFire( "alarm7-remark_caralarm", "kill" );
-		EntFire( "alarm8-remark_caralarm", "kill" );
-		EntFire( "remark_caralarm-car1_alarm", "kill" );
-		EntFire( "remark_caralarm-car2_alarm", "kill" );
-		EntFire( "remark_caralarm-car3_alarm", "kill" );
-		EntFire( "car_alarm-remark_caralarm", "kill" );
-		EntFire( "remark_caralarm", "kill" );
-		EntFire( "InstanceAuto1-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto2-remark_caralarm", "kill" );
-		EntFire( "car_alarm1-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto12-remark_caralarm", "kill" );
-		EntFire( "remark_caralarm-car1", "kill" );
-		EntFire( "remark_caralarm-car2", "kill" );
-		EntFire( "remark_caralarm-car3", "kill" );
-		EntFire( "remark_caralarm-car4", "kill" );
-		EntFire( "remark_caralarm-car5", "kill" );
-		EntFire( "caralarm_1-remark_caralarm", "kill" );
-		EntFire( "caralarm_2-remark_caralarm", "kill" );
-		EntFire( "caralarm_3-remark_caralarm", "kill" );
-		EntFire( "caralarm_4-remark_caralarm", "kill" );
-		EntFire( "caralarm_6-remark_caralarm", "kill" );
-		EntFire( "caralarm_7-remark_caralarm", "kill" );
-		EntFire( "caralarm_8-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto24-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto44-remark_caralarm", "kill" );
-		EntFire( "car1-remark_caralarm", "kill" );
-		EntFire( "car2-remark_caralarm", "kill" );
-		EntFire( "car3-remark_caralarm", "kill" );
-		EntFire( "car4-remark_caralarm", "kill" );
-		EntFire( "car5-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto128-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto4-remark_caralarm", "kill" );
-		EntFire( "InstanceAuto5-remark_caralarm", "kill" );
-		EntFire( "alarma1-remark_caralarm", "kill" );
-		EntFire( "alarma2-remark_caralarm", "kill" );
-		EntFire( "alarma3-remark_caralarm", "kill" );
-		EntFire( "alarma4-remark_caralarm", "kill" );
-		EntFire( "alarma5-remark_caralarm", "kill" );
-		EntFire( "alarma6-remark_caralarm", "kill" );
-		EntFire( "alarma7-remark_caralarm", "kill" );
-		EntFire( "alarma8-remark_caralarm", "kill" );
-		EntFire( "alarma9-remark_caralarm", "kill" );
-		disabled_car_alarms = true;
-    }
-	if( !removed_impound_instructor && Entities.FindByName( null, "instructor_impound" ) )
-    {
-		EntFire( "trigger_multiple", "kill" );
-		removed_impound_instructor = true;
-    }
+	
+	if ( SessionState.SIModelsBase[zombieType - 1].len() == 1 )
+		return;
+	
+	local zombieModels = SessionState.SIModels[zombieType - 1];
+	if ( zombieModels.len() == 0 )
+		SessionState.SIModels[zombieType - 1].extend( SessionState.SIModelsBase[zombieType - 1] );
+	local foundModel = zombieModels.find( modelName );
+	if ( foundModel != null )
+	{
+		zombieModels.remove( foundModel );
+		return;
+	}
+	
+	local randomElement = RandomInt( 0, zombieModels.len() - 1 );
+	local randomModel = zombieModels[ randomElement ];
+	zombieModels.remove( randomElement );
+	
+	player.SetModel( randomModel );
 }

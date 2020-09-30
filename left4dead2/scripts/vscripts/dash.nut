@@ -36,6 +36,7 @@ MutationOptions <-
 	WanderingZombieDensityModifier = 0 // get rid of wanderers
 
 	cm_ShouldEscortHumanPlayers = 1
+	cm_AggressiveSpecials = 1
 
 	BoomerLimit  = 0
 	ChargerLimit = 0

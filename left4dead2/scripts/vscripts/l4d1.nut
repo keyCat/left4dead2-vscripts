@@ -2,9 +2,16 @@
 //
 //
 //=============================================================================
-
 Msg("Activating Mutation L4D1\n");
 
+if ( !IsModelPrecached( "models/infected/smoker_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/smoker_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/boomer_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/boomer_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/hunter_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/hunter_l4d1.mdl" );
+if ( !IsModelPrecached( "models/infected/hulk_l4d1.mdl" ) )
+	PrecacheModel( "models/infected/hulk_l4d1.mdl" );
 
 DirectorOptions <-
 {
@@ -13,6 +20,8 @@ DirectorOptions <-
 	SpitterLimit = 0
 	JockeyLimit = 0
 	ChargerLimit = 0
+
+	EscapeSpawnTanks = true
 
 	weaponsToConvert =
 	{
@@ -28,7 +37,6 @@ DirectorOptions <-
 		weapon_shotgun_chrome			= "weapon_pumpshotgun_spawn"
 		weapon_rifle_ak47				= "weapon_rifle_spawn"
 		weapon_rifle_desert				= "weapon_rifle_spawn"
-		weapon_rifle_m60				= "weapon_rifle_spawn"
 		weapon_rifle_sg552				= "weapon_rifle_spawn"
 		weapon_smg_mp5					= "weapon_smg_spawn"
 		weapon_smg_silenced				= "weapon_smg_spawn"
@@ -41,10 +49,11 @@ DirectorOptions <-
 			return weaponsToConvert[classname];
 		}
 		return 0;
-	}	
+	}
 
 	weaponsToRemove =
 	{
+		weapon_rifle_m60 = 0
 		weapon_grenade_launcher = 0
 		weapon_chainsaw = 0
 		weapon_melee = 0
@@ -60,6 +69,85 @@ DirectorOptions <-
 			return false;
 		}
 		return true;
-	}	
+	}
 
+	function ShouldAvoidItem( classname )
+	{
+		if ( classname in weaponsToRemove )
+		{
+			return true;
+		}
+		return false;
+	}
+}
+
+function OnGameEvent_round_start_post_nav( params )
+{
+	local world = Entities.FindByClassname( null, "worldspawn" );
+	if ( world )
+		world.__KeyValueFromInt( "timeofday", 0 );
+	
+	EntFire( "trigger_upgrade_laser_sight", "Kill" );
+	
+	if ( SessionState.ModeName == "l4d1coop" || SessionState.ModeName == "l4d1vs" )
+	{
+		if ( SessionState.MapName == "c8m5_rooftop" || SessionState.MapName == "c9m2_lots" || SessionState.MapName == "c10m5_houseboat"
+			|| SessionState.MapName == "c11m5_runway" || SessionState.MapName == "c12m5_cornfield" )
+		{
+			local finale = Entities.FindByClassname( null, "trigger_finale" );
+			if ( finale )
+				NetProps.SetPropInt( finale, "m_type", 0 );
+		}
+	}
+}
+
+function OnGameEvent_player_spawn( params )
+{
+	local player = GetPlayerFromUserID( params["userid"] );
+	
+	if ( ( !player ) || ( player.IsSurvivor() ) )
+		return;
+	
+	local modelName = player.GetModelName();
+	if ( ( modelName.find( "l4d1" ) != null ) || ( modelName == "models/infected/hulk_dlc3.mdl" ) )
+		return;
+	
+	switch( player.GetZombieType() )
+	{
+		case 1:
+		{
+			player.SetModel( "models/infected/smoker_l4d1.mdl" );
+			break;
+		}
+		case 2:
+		{
+			player.SetModel( "models/infected/boomer_l4d1.mdl" );
+			break;
+		}
+		case 3:
+		{
+			player.SetModel( "models/infected/hunter_l4d1.mdl" );
+			break;
+		}
+		case 8:
+		{
+			player.SetModel( "models/infected/hulk_l4d1.mdl" );
+			break;
+		}
+		default:
+			break;
+	}
+}
+
+function OnGameEvent_player_death( params )
+{
+	if ( !("userid" in params) )
+		return;
+	
+	local victim = GetPlayerFromUserID( params["userid"] );
+	
+	if ( ( !victim ) || ( !victim.IsSurvivor() ) )
+		return;
+	
+	EntFire( "survivor_death_model", "BecomeRagdoll" );
 }

@@ -207,7 +207,6 @@ InitialOnslaughtOptions <-
 
 PanicOptions <-
 {
-
 	MegaMobSize = 0 // randomized in OnBeginCustomFinaleStage
 	MegaMobMinSize = 20
 	MegaMobMaxSize = 40
@@ -283,7 +282,6 @@ if ( Director.IsPlayingOnConsole() )
 	DelayTouchedOrPouredThreshold <- 4
 	
 	TankOptions.ShouldAllowSpecialsWithTank = false
-	
 }
 //-----------------------------------------------------
 //      INIT
@@ -430,10 +428,7 @@ function OnBeginCustomFinaleStage( num, type )
 //-----------------------------------------------------
 
 
-if ( Director.GetGameMode() == "coop" )
-{
-}
-else if ( Director.GetGameMode() == "versus" )
+if ( Director.GetGameModeBase() == "versus" )
 {
 	SharedOptions.ProhibitBosses = false
 }

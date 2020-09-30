@@ -33,9 +33,9 @@ DirectorOptions <-
 		weapon_shotgun_spas = 0
 		weapon_grenade_launcher = 0
 		weapon_rifle_ak47 = 0
-		weapon_smg_mp5 = 0		
-		weapon_rifle_sg552 = 0		
-		weapon_sniper_awp = 0	
+		weapon_smg_mp5 = 0
+		weapon_rifle_sg552 = 0
+		weapon_sniper_awp = 0
 		weapon_sniper_scout = 0
 		weapon_rifle_m60 = 0
 		weapon_melee = 0
@@ -52,7 +52,7 @@ DirectorOptions <-
 			return false;
 		}
 		return true;
-	}	
+	}
 
 	DefaultItems =
 	[
@@ -66,16 +66,10 @@ DirectorOptions <-
 			return DefaultItems[idx];
 		}
 		return 0;
-	}	
+	}
 }
 
-removed_weapon_spawns <- false;
-function Update()
+function OnGameEvent_round_start_post_nav( params )
 {
-	if( !removed_weapon_spawns )
-    {
-		EntFire( "weapon_spawn", "kill" );
-		removed_weapon_spawns = true;
-    }
+	EntFire( "weapon_spawn", "Kill" );
 }
-

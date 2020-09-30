@@ -4,8 +4,8 @@
 // parentTable: The parent table where the CompLite library namespace should be created. This 
 //		should be a table which will not be wiped on roundstart. getroottable() is a good idea, defaults to getroottable();
 // customNameSpace: The custom name to use for the CompLite Libraries' namespace. Should be passed as a string. Defaults to "CompLite"
-// ChallengeScript: Pass a reference to the ChallengeScript table. Defaults ::to DirectorScript.ChallengeScript
-function InitializeCompLite(parentTable = getroottable() , customNameSpace = "CompLite", ChallengeScript = ::DirectorScript.ChallengeScript )
+// ChallengeScript: Pass a reference to the ChallengeScript table. Defaults to ::DirectorScript.MapScript.ChallengeScript
+function InitializeCompLite(parentTable = getroottable() , customNameSpace = "CompLite", ChallengeScript = ::DirectorScript.MapScript.ChallengeScript )
 {
 	if(customNameSpace in parentTable)
 	{

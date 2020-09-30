@@ -22,4 +22,4 @@ DirectorOptions <-
 } 
 
 NavMesh.UnblockRescueVehicleNav()
-Director.ResetMobTimer()
+//Director.ResetMobTimer()

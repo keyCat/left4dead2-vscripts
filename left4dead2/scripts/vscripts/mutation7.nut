@@ -31,6 +31,7 @@ DirectorOptions <-
 		weapon_sniper_scout = 0
 		weapon_rifle_m60 = 0
 		weapon_melee = 0
+		weapon_chainsaw = 0
 		weapon_upgradepack_incendiary = 0
 		weapon_upgradepack_explosive = 0
 		ammo = 0
@@ -44,16 +45,16 @@ DirectorOptions <-
 			return false;
 		}
 		return true;
-	}	
+	}
 
 	function ShouldAvoidItem( classname )
 	{
-		if ( classname in weaponsToRemove )
+		if ( ( classname != "weapon_chainsaw" ) && ( classname in weaponsToRemove ) )
 		{
 			return true;
 		}
 		return false;
-	}	
+	}
 
 	DefaultItems =
 	[
@@ -68,16 +69,10 @@ DirectorOptions <-
 			return DefaultItems[idx];
 		}
 		return 0;
-	}	
+	}
 }
 
-removed_weapon_spawns <- false;
-function Update()
+function OnGameEvent_round_start_post_nav( params )
 {
-	if( !removed_weapon_spawns )
-    {
-		EntFire( "weapon_spawn", "kill" );
-		removed_weapon_spawns = true;
-    }
+	EntFire( "weapon_spawn", "Kill" );
 }
-

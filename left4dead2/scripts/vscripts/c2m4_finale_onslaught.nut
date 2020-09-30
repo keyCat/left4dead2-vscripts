@@ -5,7 +5,7 @@ DirectorOptions <-
 	// This turns off tanks and witches.
 	ProhibitBosses = true
 
-        LockTempo = 0
+    LockTempo = 0
 	MobSpawnMinTime = 3
 	MobSpawnMaxTime = 3
 	MobMinSize = 15
@@ -20,12 +20,11 @@ DirectorOptions <-
 	MobMaxPending = 10
 	SpecialRespawnInterval = 40.0
 	ZombieSpawnRange = 3000
-
 }
 
 Director.ResetMobTimer()
  
-if ( Director.GetGameMode() == "versus" )
+if ( Director.GetGameModeBase() == "versus" )
 {
     DirectorOptions.IntensityRelaxThreshold <- 0.8;
 }

@@ -4,26 +4,6 @@
 
 printl( "Initializing Director's script" );
 
-// this is temp and  will be an enum from gamecode
-
-FINALE_GAUNTLET_1 <- 0
-FINALE_HORDE_ATTACK_1 <- 1
-FINALE_HALFTIME_BOSS <- 2
-FINALE_GAUNTLET_2 <- 3
-FINALE_HORDE_ATTACK_2 <- 4
-FINALE_FINAL_BOSS <- 5
-FINALE_HORDE_ESCAPE <- 6
-FINALE_CUSTOM_PANIC <- 7
-FINALE_CUSTOM_TANK <- 8
-FINALE_CUSTOM_SCRIPTED <- 9
-FINALE_CUSTOM_DELAY <- 10
-FINALE_GAUNTLET_START <- 11
-FINALE_GAUNTLET_HORDE <- 12
-FINALE_GAUNTLET_HORDE_BONUSTIME <- 13
-FINALE_GAUNTLET_BOSS_INCOMING <- 14
-FINALE_GAUNTLET_BOSS <- 15
-FINALE_GAUNTLET_ESCAPE <- 16
-
 DirectorOptions <-
 {
 
@@ -32,7 +12,10 @@ DirectorOptions <-
 
 	function OnChangeFinaleStage( from, to)
 	{
-		OnChangeFinaleMusic = finaleStageList[to];
+		if ( to > 0 && to < finaleStageList.len() )
+		{
+			OnChangeFinaleMusic = finaleStageList[to];
+		}
 	}
 
 	MaxSpecials = 2		
@@ -50,6 +33,7 @@ DirectorOptions.finaleStageList.insert( FINALE_CUSTOM_PANIC, "FINALE_CUSTOM_PANI
 DirectorOptions.finaleStageList.insert( FINALE_CUSTOM_TANK, "Event.TankMidpoint" );
 DirectorOptions.finaleStageList.insert( FINALE_CUSTOM_SCRIPTED, "FINALE_CUSTOM_SCRIPTED" );
 DirectorOptions.finaleStageList.insert( FINALE_CUSTOM_DELAY, "FINALE_CUSTOM_DELAY" );
+DirectorOptions.finaleStageList.insert( FINALE_CUSTOM_CLEAROUT, "FINALE_CUSTOM_DELAY" );
 DirectorOptions.finaleStageList.insert( FINALE_GAUNTLET_START, "Event.FinaleStart" );
 DirectorOptions.finaleStageList.insert( FINALE_GAUNTLET_HORDE, "FINALE_GAUNTLET_HORDE" );
 DirectorOptions.finaleStageList.insert( FINALE_GAUNTLET_HORDE_BONUSTIME, "FINALE_GAUNTLET_HORDE_BONUSTIME" );
@@ -70,7 +54,7 @@ function GetDirectorOptions()
 	{
 		if ( result != null )
 		{
-				delegate result : DirectorScript.MapScript.DirectorOptions;
+				DirectorScript.MapScript.DirectorOptions.setdelegate( result );
 		}
 		result = DirectorScript.MapScript.DirectorOptions;
 	}
@@ -79,18 +63,18 @@ function GetDirectorOptions()
 	{
 		if ( result != null )
 		{
-			delegate result : DirectorScript.MapScript.LocalScript.DirectorOptions;
+			DirectorScript.MapScript.LocalScript.DirectorOptions.setdelegate( result );
 		}
 		result = DirectorScript.MapScript.LocalScript.DirectorOptions;
 	}
 
-	if ( DirectorScript.ChallengeScript.rawin( "DirectorOptions") )
+	if ( DirectorScript.MapScript.ChallengeScript.rawin( "DirectorOptions" ) )
 	{
 		if ( result != null )
 		{
-			delegate result : DirectorScript.ChallengeScript.DirectorOptions;
+			DirectorScript.MapScript.ChallengeScript.DirectorOptions.setdelegate( result );
 		}
-		result = DirectorScript.ChallengeScript.DirectorOptions;
+		result = DirectorScript.MapScript.ChallengeScript.DirectorOptions;
 	}
 	
 	return result;

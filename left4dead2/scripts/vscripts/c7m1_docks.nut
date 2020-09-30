@@ -12,7 +12,7 @@ if ( Director.IsPlayingOnConsole() )
 	DocksCommonLimit <- 20
 }
 
-if ( Director.GetGameMode() == "coop" )
+if ( Director.GetGameModeBase() == "coop" )
 {
 	DocksMegaMobSize <- 30	// use a smaller megamob for the panic event in the train car area. 
 }

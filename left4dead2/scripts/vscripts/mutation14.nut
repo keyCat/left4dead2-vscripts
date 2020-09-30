@@ -39,7 +39,16 @@ DirectorOptions <-
 			return false;
 		}
 		return true;
-	}	
+	}
+
+	function ShouldAvoidItem( classname )
+	{
+		if ( ( classname != "weapon_rifle_m60" && classname != "weapon_pistol_magnum" ) && ( classname in weaponsToRemove ) )
+		{
+			return true;
+		}
+		return false;
+	}
 
 	DefaultItems =
 	[
@@ -54,16 +63,10 @@ DirectorOptions <-
 			return DefaultItems[idx];
 		}
 		return 0;
-	}	
+	}
 }
 
-removed_weapon_spawns <- false;
-function Update()
+function OnGameEvent_round_start_post_nav( params )
 {
-	if( !removed_weapon_spawns )
-    {
-		EntFire( "weapon_spawn", "kill" );
-		removed_weapon_spawns = true;
-    }
+	EntFire( "weapon_spawn", "Kill" );
 }
-

@@ -48,6 +48,7 @@ MutationState <-
 // the DirectorOptions defaults for Holdout - though the maps will override many of these per wave and phase
 MutationOptions <-
 {
+	PreferredMobDirection = SPAWN_NO_PREFERENCE
 	SpawnSetRule = SPAWN_ANYWHERE
 	JournalString = ""
 	SpecialInfectedAssault = 0
@@ -82,6 +83,7 @@ MutationOptions <-
 	MegaMobSize = 50       // i have no idea why this defaults to not between min and max
 
 	cm_ShouldEscortHumanPlayers = 1
+	cm_AggressiveSpecials = 1
 }
 
 //=========================================================

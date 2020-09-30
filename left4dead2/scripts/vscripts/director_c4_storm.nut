@@ -7,17 +7,16 @@ DirectorOptions <-
 
 	ZombieSpawnInFog = 1
 	ZombieSpawnRange = 3000
-        MobRechargeRate = 0.001
-        
-        FallenSurvivorPotentialQuantity = 6
-        FallenSurvivorSpawnChance       = 0.75
-
-        GasCansOnBacks = true
-
+	MobRechargeRate = 0.001
+	
+	FallenSurvivorPotentialQuantity = 6
+	FallenSurvivorSpawnChance       = 0.75
+	
+	GasCansOnBacks = true
 }
 
 
-if ( Director.GetGameMode() == "versus" )
+if ( Director.GetGameModeBase() == "versus" )
 {
     DirectorOptions.ProhibitBosses <- true;
 }

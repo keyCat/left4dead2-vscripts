@@ -67,7 +67,16 @@ DirectorOptions <-
 			return false;
 		}
 		return true;
-	}	
+	}
+
+	function ShouldAvoidItem( classname )
+	{
+		if ( ( classname != "weapon_melee" ) && ( classname in weaponsToRemove ) )
+		{
+			return true;
+		}
+		return false;
+	}
 
 	DefaultItems =
 	[
@@ -81,55 +90,59 @@ DirectorOptions <-
 			return DefaultItems[idx];
 		}
 		return 0;
-	}	
+	}
 }
 
-removed_common_spawns <- false;
-removed_weapon_spawns <- false;
-function Update()
+function RemoveInfectedFailsafe()
 {
-	if( !removed_weapon_spawns )
-    {
-		EntFire( "weapon_spawn", "kill" );
-		removed_weapon_spawns = true;
-    }
-	if( !removed_common_spawns )
-    {
-		EntFire( "intro_zombie_spawn", "kill" );
-		EntFire( "zspawn_lobby_fall_1", "kill" );
-		EntFire( "zspawn_lobby_fall_2", "kill" );
-		EntFire( "zspawn_lobby_fall_3", "kill" );
-		EntFire( "zspawn_lobby_fall_4", "kill" );
-		EntFire( "zspawn_lobby_fall_5", "kill" );
-		EntFire( "zspawn_fall_1", "kill" );
-		EntFire( "zspawn_fall_2", "kill" );
-		EntFire( "zombie_outro", "kill" );
-		EntFire( "escape_zombie", "kill" );
-		EntFire( "zspawn_zombie_safe", "kill" );
-		EntFire( "zspawn_zombie_safe2", "kill" );
-		EntFire( "spawn_zombie_van", "kill" );
-		EntFire( "spawn_zombie_alarm", "kill" );
-		EntFire( "spawn_zombie_alarm2", "kill" );
-		EntFire( "zombie_spawn1", "kill" );
-		EntFire( "spawn_zombie_run", "kill" );
-		EntFire( "spawn_zombie_end", "kill" );
-		EntFire( "infected_spawner", "kill" );
-		EntFire( "infected_spawner2", "kill" );
-		EntFire( "spawn_zombie_location1", "kill" );
-		EntFire( "spawn_zombie_location2", "kill" );
-		EntFire( "spawn_zombie_location3", "kill" );
-		EntFire( "spawn_zombie_location4", "kill" );
-		EntFire( "spawn_zombie_location5", "kill" );
-		EntFire( "spawn_zombie_location6", "kill" );
-		removed_common_spawns = true;
-    }
-	if( Director.GetCommonInfectedCount() >= 1 )
+	if ( Director.GetCommonInfectedCount() > 0 )
 	{
-		z <- null;
-		while( ( z = Entities.FindByClassname( z, "infected" ) ) != null )
+		local infected = null;
+		while ( infected = Entities.FindByClassname( infected, "infected" ) )
 		{
-			DoEntFire( "!self", "kill", "", 0, null, z );
+			if ( infected.IsValid() )
+				infected.Kill();
 		}
 	}
 }
 
+function OnGameEvent_round_start_post_nav( params )
+{
+	local spawner = null;
+	while ( spawner = Entities.FindByClassname( spawner, "info_zombie_spawn" ) )
+	{
+		if ( spawner.IsValid() )
+		{
+			local population = NetProps.GetPropString( spawner, "m_szPopulation" );
+			
+			if ( population == "boomer" || population == "hunter" || population == "smoker" || population == "jockey"
+				|| population == "charger" || population == "spitter" || population == "new_special" || population == "church"
+					|| population == "tank" || population == "witch" || population == "witch_bride" || population == "river_docks_trap" )
+				continue;
+			else
+				spawner.Kill();
+		}
+	}
+	
+	if ( Director.GetMapName() == "c5m5_bridge" || Director.GetMapName() == "c6m3_port" )
+		DirectorOptions.cm_MaxSpecials = 0;
+	
+	EntFire( "weapon_spawn", "Kill" );
+}
+
+function OnGameEvent_player_left_safe_area( params )
+{
+	ScriptedMode_AddUpdate( RemoveInfectedFailsafe );
+}
+
+function OnGameEvent_finale_start( params )
+{
+	if ( Director.GetMapName() == "c6m3_port" )
+		DirectorOptions.cm_MaxSpecials = 8;
+}
+
+function OnGameEvent_gauntlet_finale_start( params )
+{
+	if ( Director.GetMapName() == "c5m5_bridge" )
+		DirectorOptions.cm_MaxSpecials = 8;
+}

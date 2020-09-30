@@ -76,20 +76,19 @@ else
 // the sacrifice.
 
 PreEscapeDelay <- 0
-if ( Director.GetGameMode() == "coop" )
+if ( Director.GetGameModeBase() == "coop" || Director.GetGameModeBase() == "realism" )
 {
 	PreEscapeDelay <- 5
 }
-else if ( Director.GetGameMode() == "versus" )
+else if ( Director.GetGameModeBase() == "versus" )
 {
 	PreEscapeDelay <- 15
 }
 
 DirectorOptions <-
 {	
-	 
 	A_CustomFinale_StageCount = 8
-	 
+	
 	// PHASE 1
 	A_CustomFinale1 = RandomFinaleStage1
 	A_CustomFinaleValue1 = 1
@@ -113,16 +112,15 @@ DirectorOptions <-
 	A_CustomFinaleValue7 = 1	 	 		 
 	A_CustomFinale8 = DELAY
 	A_CustomFinaleValue8 = PreEscapeDelay
-	 
-	 
-	 
+	
+	
+	
 	TankLimit = 4
 	WitchLimit = 0
 	CommonLimit = 20	
 	HordeEscapeCommonLimit = 15	
 	EscapeSpawnTanks = false
 	//SpecialRespawnInterval = 80
-
 }
 
 

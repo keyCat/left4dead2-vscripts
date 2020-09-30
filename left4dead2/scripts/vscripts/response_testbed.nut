@@ -12,7 +12,7 @@ enum ResponseKind
 	sentence,	// it's a sentence name from sentences.txt
 	scene,		// it's a .vcd file
 	response,	// it's a reference to another response group by name
-	print		// print the text in developer 2 (for placeholder responses)
+	print,		// print the text in developer 2 (for placeholder responses)
 	script		// a script function
 }
 
@@ -66,6 +66,11 @@ class ResponseSingle {
 	rule = null; // reference back to the rule to which I belong
 	
 	cpp_visitor = null; // a field for the C++ code to store whatever opaque info it needs in this object.
+	
+	function _tostring()
+	{
+		return "ResponseSingle: " + target
+	}
 }
 
 
@@ -134,6 +139,16 @@ class RThen {
 	
 	function execute( speaker, query ) 
 	{
+		if ( target.tolower() == "namvet" )
+			target = "NamVet"
+		else if ( target.tolower() == "teengirl" )
+			target = "TeenGirl"
+		else
+		{
+			local firstletter = target.slice(0,1)
+			target = firstletter.toupper() + target.slice(1)
+		}
+		
 		// debug prints...
 		if ( Convars.GetFloat( "rr_debugresponses" ) > 0 )
 		{
@@ -162,22 +177,24 @@ class RThen {
 			query[k] <- v
 		}
 		
-		if ( target == "all" )
+		if ( target.tolower() == "all" )
 		{
 			local expressers = ::rr_GetResponseTargets()
-			// attempt disapatch to all listeners
+			// attempt dispatch to all listeners
 			foreach (name, recipient in expressers)
 			{
-				local q = rr_QueryBestResponse( recipient, query )
+				DoEntFire( "!self", "SpeakResponseConcept", query.concept, delay, null, recipient )
+				/*local q = rr_QueryBestResponse( recipient, query )
 				if ( q )
 				{
 					rr_CommitAIResponse( recipient, q )
-				}
+				}*/
 			}
 		}
-		else if ( target == "any" )
+		else if ( target.tolower() == "any" )
 		{
-			local expressers = ::rr_GetResponseTargets()
+			EntFire( "info_director", "FireConceptToAny", query.concept, delay )
+			/*local expressers = ::rr_GetResponseTargets()
 			// test the query against each listener and only play the best match
 			local results = []
 			foreach (name, recipient in expressers)
@@ -201,24 +218,42 @@ class RThen {
 					}
 				}
 				rr_CommitAIResponse( results[best][0], results[best][1] )
-			}
+			}*/
 		}
-		else if ( target == "self" )
+		else if ( target.tolower() == "self" )
 		{
-			local q = rr_QueryBestResponse( speaker, query )
+			DoEntFire( "!self", "SpeakResponseConcept", query.concept, delay, null, speaker )
+			/*local q = rr_QueryBestResponse( speaker, query )
 			if ( q )
-				rr_CommitAIResponse( speaker, q )
+				rr_CommitAIResponse( speaker, q )*/
+		}
+		else if ( target.tolower() == "subject" )
+		{
+			local expressers = ::rr_GetResponseTargets()
+			if ( query.subject in expressers )
+				DoEntFire( "!self", "SpeakResponseConcept", query.concept, delay, null, expressers[query.subject] )
+		}
+		else if ( target.tolower() == "from" )
+		{
+			local expressers = ::rr_GetResponseTargets()
+			if ( query.from in expressers )
+				DoEntFire( "!self", "SpeakResponseConcept", query.concept, delay, null, expressers[query.from] )
+		}
+		else if ( target.tolower() == "orator" )
+		{
+			EntFire( "func_orator", "SpeakResponseConcept", query.concept, 0 )
 		}
 		else
 		{	
 			local expressers = ::rr_GetResponseTargets()
 			if ( target in expressers )
 			{
-				local q = rr_QueryBestResponse( expressers[target], query )
+				DoEntFire( "!self", "SpeakResponseConcept", query.concept, delay, null, expressers[target] )
+				/*local q = rr_QueryBestResponse( expressers[target], query )
 				if ( q )
 				{
 					rr_CommitAIResponse( expressers[target], q )
-				}
+				}*/
 			}
 			else
 			{
@@ -233,6 +268,11 @@ class RThen {
 	addcontexts = null; // a table of {k1:v1, k2:v2} additional facts that will be added to the following query. concept is always present here, from the constructor.
 	delay = null; // delay as passed to the code followup class 	
 	func = null; // what gets called when the followup triggers
+	
+	function _tostring()
+	{
+		return "RThen: " + target
+	}
 }
 
 // Given a single array representing a criterion,
@@ -279,6 +319,14 @@ function rr_ProcessCriterion( crit )
 				break	
 			case 3:
 				assert( typeof(crit[0]) == "string" )
+				if (crit[1] == null)
+				{
+					crit[1] = 0
+				}
+				if (crit[2] == null)
+				{
+					crit[2] = 999999
+				}
 				return Criterion( crit[0], crit[1], crit[2] )
 				break
 			default:
@@ -291,6 +339,68 @@ function rr_ProcessCriterion( crit )
 	}
 }
 
+function rr_PlaySoundFile( speaker, query, soundfile, context, contexttoworld, volume, func )
+{
+	EmitAmbientSoundOn( soundfile, volume, 350, 100, speaker )
+	if ( func )
+		func( speaker, query )
+	if ( context )
+		rr_ApplyContext( speaker, query, context, contexttoworld, null )
+}
+
+function rr_EmitSound( speaker, query, soundname, context, contexttoworld, func )
+{
+	EmitSoundOn( soundname, speaker )
+	if ( func )
+		func( speaker, query )
+	if ( context )
+		rr_ApplyContext( speaker, query, context, contexttoworld, null )
+}
+
+function rr_ApplyContext( speaker, query, contextData, contexttoworld, func )
+{
+	if ( typeof contextData == "table" )
+	{
+		if ( ( "context" in contextData ) && ( typeof contextData.context != "table" ) )
+		{
+			if ( contexttoworld )
+			{
+				local world = Entities.FindByClassname( null, "worldspawn" )
+				if ( world )
+					world.SetContext( contextData.context, contextData.value.tostring(), contextData.duration )
+			}
+			else
+			{
+				local duration = contextData.duration
+				if ( duration == 0 )
+					duration = -1
+				speaker.SetContext( contextData.context, contextData.value.tostring(), duration )
+			}
+		}
+		else
+		{
+			foreach( contexts in contextData )
+			{
+				if ( contexttoworld )
+				{
+					local world = Entities.FindByClassname( null, "worldspawn" )
+					if ( world )
+						world.SetContext( contexts.context, contexts.value.tostring(), contexts.duration )
+				}
+				else
+				{
+					local duration = contexts.duration
+					if ( duration == 0 )
+						duration = -1
+					speaker.SetContext( contexts.context, contexts.value.tostring(), duration )
+				}
+			}
+		}
+	}
+	if ( func )
+		func( speaker, query )
+}
+
 
 // Given a single array representing the responses,
 // do the ugly work to normalize them into ResponseSingle objects.
@@ -299,6 +409,17 @@ function rr_ProcessResponse( resp )
 {
 	local func = null
 	local scene = null
+	local applycontext = null
+	local applycontexttoworld = false
+	
+	if ( "applycontext" in resp )
+	{
+		applycontext = resp.applycontext
+	}
+	if ( "applycontexttoworld" in resp )
+	{
+		applycontexttoworld = resp.applycontexttoworld
+	}
 	if ( "func" in resp ) 
 	{
 		func = resp.func
@@ -310,6 +431,24 @@ function rr_ProcessResponse( resp )
 	if ( "scenename" in resp )
 	{
 		scene = resp.scenename
+		
+		local Func = func
+		if ( applycontext )
+			func = @( speaker, query ) g_rr.rr_ApplyContext( speaker, query, applycontext, applycontexttoworld, Func )
+	}
+	if ( "soundname" in resp )
+	{
+		local Func = func
+		func = @( speaker, query ) g_rr.rr_EmitSound( speaker, query, resp.soundname, applycontext, applycontexttoworld, Func )
+	}
+	if ( "soundfile" in resp )
+	{
+		local volume = 1
+		if ( "volume" in resp )
+			volume = resp.volume
+		
+		local Func = func
+		func = @( speaker, query ) g_rr.rr_PlaySoundFile( speaker, query, resp.soundfile, applycontext, applycontexttoworld, volume, Func )
 	}
 	
 	local kind = ResponseKind.none

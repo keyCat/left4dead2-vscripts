@@ -1,5 +1,5 @@
 
-Msg(" atrium map script "+"\n")
+Msg(" port map script "+"\n")
 
 // number of cans needed to escape.
 
@@ -15,9 +15,7 @@ else
 
 DirectorOptions <-
 {
-	
-CommonLimit = 30
-
+	CommonLimit = 30
 }
 
 NavMesh.UnblockRescueVehicleNav()

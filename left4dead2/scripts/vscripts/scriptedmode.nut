@@ -32,10 +32,8 @@ BaseScriptedDOTable <-
 	ScriptedStageType = STAGE_NONE
 	ScriptedStageValue = 1000
 	SpawnSetRule = SPAWN_SURVIVORS
-	PreferredMobDirection = SPAWN_NO_PREFERENCE
 	SpawnDirectionCount = 0
 	SpawnDirectionMask = 0
-	cm_AggressiveSpecials = 1
 }
 
 //---------------------------------------------------------
@@ -298,7 +296,7 @@ function Update()
 scripthelp_ScriptedMode_CallNextUpdate <- "Pass a lambda to this, it will get called once as part of next Update, for doing something 'soon but not now'"
 function ScriptedMode_CallNextUpdate( callnext )
 {
-			scriptedNextUpdateCalls.append( { frame = GetFrameCount(), func = callnext } )
+	scriptedNextUpdateCalls.append( { frame = GetFrameCount(), func = callnext } )
 }
 
 //=========================================================
