@@ -4,7 +4,7 @@
 //																						//
 //****************************************************************************************
 
-::rocketdude_version <- 1.2
+::rocketdude_version <- 1.3
 
 scriptDebug <- Convars.GetFloat("developer")
 
@@ -375,37 +375,11 @@ function autobhop(){
 
 
 
-// Will enable glows for grenade when the m_hThrower used a mushroom already
-// ----------------------------------------------------------------------------------------------------------------------------
-
-local grenadeGlowColor = GetColorInt(Vector(255,16,16))
-
-function grenadeGlowListener(){
-	local nade = null;
-	while(nade = Entities.FindByClassname(nade, "grenade_launcher_projectile")){
-		if(nade.GetScriptScope() == null){
-			nade.ValidateScriptScope()
-			nade.GetScriptScope()["Time"] <- Time()
-		}
-		if(Time() > nade.GetScriptScope()["Time"] + 0.12){
-			if(NetProps.GetPropEntity(nade, "m_hThrower") in bunnyPlayers){
-				NetProps.SetPropInt(nade, "m_Glow.m_glowColorOverride", grenadeGlowColor)
-				NetProps.SetPropInt(nade, "m_Glow.m_nGlowRangeMin", 32)
-				NetProps.SetPropInt(nade, "m_Glow.m_nGlowRange", 8192)
-				NetProps.SetPropInt(nade, "m_Glow.m_iGlowType", 3)
-				NetProps.SetPropInt(nade, "m_Glow.m_bFlashing", 1)
-			}
-		}
-	}
-}
-
-
-
-
 // Giant grenade_launcher_projectiles with custom skin and fire attached ? There you go
 // ----------------------------------------------------------------------------------------------------------------------------
 
 local grenadeColor = GetColorInt(Vector(64,64,64))
+local grenadeGlowColor = GetColorInt(Vector(255,16,16))
 
 if(!IsModelPrecached("models/w_models/weapons/w_rd_grenade_scale_x4_burn.mdl")){
 	PrecacheModel("models/w_models/weapons/w_rd_grenade_scale_x4_burn.mdl")
@@ -415,25 +389,39 @@ if(!IsModelPrecached("models/w_models/weapons/w_rd_grenade_scale_x4.mdl")){
 	PrecacheModel("models/w_models/weapons/w_rd_grenade_scale_x4.mdl")
 }
 
-if(!IsModelPrecached("models/gibs/skull_projectile/skull_projectile.mdl")){
-	PrecacheModel("models/gibs/skull_projectile/skull_projectile.mdl")
-}
-
-
-
-
-function grenadeModelModifier(){
+function grenadeCustomizer(){
 	local nade = null;
 	while(nade = Entities.FindByClassname(nade, "grenade_launcher_projectile")){
-		if(nade.GetScriptScope() == null || !("upscaled" in nade.GetScriptScope())){
+		nade.ValidateScriptScope()
+		local scope = nade.GetScriptScope()
+		
+		// Change projectile model and color
+		if(!("modelChanged" in scope)){
 			if(NetProps.GetPropEntity(nade, "m_hThrower") in bunnyPlayers){
 				nade.SetModel("models/w_models/weapons/w_rd_grenade_scale_x4_burn.mdl")
 			}else{
 				nade.SetModel("models/w_models/weapons/w_rd_grenade_scale_x4.mdl")
 			}
 			NetProps.SetPropInt(nade, "m_clrRender", grenadeColor)
-			nade.ValidateScriptScope()
-			nade.GetScriptScope()["upscaled"] <- true
+			scope["modelChanged"] <- true
+		}
+		
+		if(!("creationTimestamp" in scope)){
+			scope["creationTimestamp"] <- Time()
+		}
+		
+		// Enable glows for projectile when the m_hThrower used a mushroom already
+		if(Time() > scope["creationTimestamp"] + 0.12){
+			if(!("glowEnabled" in scope)){
+				if(NetProps.GetPropEntity(nade, "m_hThrower") in bunnyPlayers){
+					NetProps.SetPropInt(nade, "m_Glow.m_glowColorOverride", grenadeGlowColor)
+					NetProps.SetPropInt(nade, "m_Glow.m_nGlowRangeMin", 32)
+					NetProps.SetPropInt(nade, "m_Glow.m_nGlowRange", 8192)
+					NetProps.SetPropInt(nade, "m_Glow.m_iGlowType", 3)
+					NetProps.SetPropInt(nade, "m_Glow.m_bFlashing", 1)
+					scope["glowEnabled"] <- true
+				}
+			}
 		}
 	}	
 }
@@ -454,8 +442,7 @@ function Think(){
 	playerOnGroundCounter()
 	survivorSaferoomCheck()
 	lastChanceCountDown()
-	grenadeGlowListener()
-	grenadeModelModifier()
+	grenadeCustomizer()
 	setTankRockModel()
 	lastChanceRockListener()
 }

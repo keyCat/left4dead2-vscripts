@@ -268,6 +268,7 @@ function OnGameEvent_finale_start( params )
 		return;
 	
 	SessionState.DoubleTanks = true;
+	SessionState.SpawnInterval = 40;
 	SessionState.FinaleStarted = true;
 	SessionState.FinaleStartTime = Time();
 	SessionState.TriggerRescueThink = true;

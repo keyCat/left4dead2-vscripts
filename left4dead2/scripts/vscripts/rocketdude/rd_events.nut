@@ -166,9 +166,13 @@ function OnGameEvent_finale_vehicle_leaving(param){
 }
 
 
+
+
 function OnGameEvent_finale_win(param){
 	finalGroundTimeOutput()
 }
+
+
 
 
 function finalGroundTimeOutput(){
@@ -183,6 +187,8 @@ function finalGroundTimeOutput(){
 		}
 	}
 }
+
+
 
 
 local lastSaveRoomCheck = Time()
@@ -201,7 +207,10 @@ function survivorSaferoomCheck(){
 }
 
 
+
+
 function printFinalGroundTime(player){
+	local mapName = Director.GetMapName().tolower()
 	if(!player.IsDead() && !player.IsDying() && !player.IsIncapacitated()){
 		local sec = playerOnGroundData[player].seconds
 		local fracs = playerOnGroundData[player].ticks.tofloat()
@@ -212,8 +221,26 @@ function printFinalGroundTime(player){
 		local timeNeeded = limitDecimalPlaces( Time() - (playerOnGroundData[player].startTime).tofloat() )
 		local midAirPercent = getMidAirPercentage(groundTime, timeNeeded)
 		ClientPrint(null, 5, BLUE + player.GetPlayerName() + WHITE + " finished this map in " + BLUE + timeNeeded + WHITE + " seconds and spent " + BLUE + midAirPercent + WHITE + " % midair")
+		
+		local diff = GetSpeedrunStats(player, timeNeeded)
+
+		// Speedrun tracker
+		
+		if( diff != null ){
+			if( diff < 0){
+				ClientPrint(null, 5, WHITE + "Thats a new personal record for " + mapName + GREEN + " ( "  + diff.tostring() + " seconds )")
+				return;
+			}else if(diff > 0){
+				ClientPrint(null, 5, ORANGE + "( +" + ( diff.tostring()) + " seconds )" )
+				return;
+			}
+		}else{
+			ClientPrint(null, 5, WHITE + "Thats a new personal record for " + mapName )
+		}
 	}
 }
+
+
 
 
 function getMidAirPercentage(groundTime, timeNeeded){
@@ -223,8 +250,69 @@ function getMidAirPercentage(groundTime, timeNeeded){
 }
 
 
+
+
 function limitDecimalPlaces(var){
 	return (var * 100).tointeger() / 100.0
+}
+
+
+
+
+// Check if the text from the file is a "number"
+// ----------------------------------------------------------------------------------------------------------------------------
+
+function isNumeric(value){
+	local newValue;
+	local dots = 0
+	local numbers = ["0","1","2","3","4","5","6","7","8","9","."]
+	for(local i=0; i < value.len(); i++){
+		local checkChar = value.slice(i, i+1)
+		if(checkChar == "."){
+			dots++;
+		}
+		if(dots > 1){
+			return false
+		}
+		if(numbers.find(checkChar) == null){
+			return false;
+		}
+	}
+	return true;
+}
+
+
+
+
+// Record output for the local player
+// ----------------------------------------------------------------------------------------------------------------------------
+
+function GetSpeedrunStats(player, newTime){
+	
+	// Restrict saving for the local player
+	if(!(player == GetListenServerHost())){
+		return null;
+	}
+	
+	local mapName = Director.GetMapName().tolower()
+	local filePath = "rocketdude/speedrun/"
+	local fileName = mapName + ".txt"
+	
+	local savedTime = FileToString(filePath + fileName)
+	
+	// Save a file when there is none
+	if(savedTime == null || savedTime.len() == 0 || !isNumeric(savedTime)){
+		StringToFile(filePath + fileName, newTime.tostring() )
+		return;
+	}
+	
+	try{
+		savedTime = savedTime.tofloat()
+	}catch(exception){
+		return;
+	}
+	
+	return (newTime - savedTime)
 }
 
 

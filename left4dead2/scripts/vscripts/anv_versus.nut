@@ -471,6 +471,10 @@ make_trigduck( "_duckqol_carouselroof", "-30 1 0", "30 3 1", "-2240 -5259 303" )
 patch_nav_checkpoint( "1737 2712 4" );
 patch_nav_checkpoint( "-4337 -5511 -64" );
 
+// Manually fix the 2009 forklift since it is spawned after anv_mapfixes runs
+NetProps.SetPropInt( Entities.FindByName( null, g_UpdateName + "_hittable_2009forklift" ), "m_iMinHealthDmg", 400 );
+NetProps.SetPropInt( Entities.FindByName( null, g_UpdateName + "_hittable_2009forklift" ), "m_takedamage", 3 );
+
 		break;
 	}
 
@@ -798,7 +802,7 @@ make_clip( "_ladder_plankhomeroof_clipright", "Everyone", 1, "-8 5 -1", "13 6 10
 make_clip( "_ladder_startsafehouse_solidify", "SI Players", 1, "-87 -50 0", "78 35 16", "-5948 1913 244" );
 make_ladder( "_ladder_afterplankfront_cloned_afterplankback", "795 -4272 104", "1185 -8350 -10", "0 -180 0", "-1 0 0" );
 make_ladder( "_ladder_boatpanel_cloned_metalfence", "-4411 1178 136", "64 -1898 -85" );
-make_ladder( "_ladder_bridgehouseB_cloned_logfencefirst", "-4256 132 69", "-6200 -577 -58", "0 -180 0", "0 -1 0" );
+make_ladder( "_ladder_bridgehouseB_cloned_logfencefirst", "-4256 132 69", "-6200 -577.1 -58", "0 -180 0", "0 -1 0" );
 make_ladder( "_ladder_bridgehouseT_cloned_firebarrelhouse", "-3290 -1704 51.5", "1241 1035 50" );
 make_ladder( "_ladder_bugnethome_cloned_metalfence", "-4411 1178 136", "-10133 -677 7", "0 -180 0", "0 -1 0" );
 make_ladder( "_ladder_endsafehousetall_cloned_buglampoon", "-3984 -2900 117", "1843 266 224", "0 90 0", "-1 0 0" );
@@ -896,6 +900,7 @@ make_clip( "_ladder_dumpsterhouse_clip", "Everyone", 1, "-8 -16 0", "26 8 168", 
 make_clip( "_ladder_safehousetall_clip", "SI Players", 1, "-20 -2 -2", "8 2 310", "3725 -1537 101", "0 45 0" );
 make_clip( "_ladder_sweetrelief_clip", "Everyone", 1, "-8 -16 0", "8 9 212", "-5746 6595 96", "0 53 0" );
 make_clip( "_ladder_yellowhousetree_topdenial", "SI Players", 1, "-8 -32 0", "8 32 62", "2244 3123 378", "-7 0 0" );
+make_clip( "_playgroundhouse_clip", "Survivors", 1, "-54 -177 -35", "635 176 1176", "-2074 7312 360" );
 make_clip( "_safehousehedge_blocker", "SI Players", 1, "-690 -122 -20", "139 93 2122", "4401 -2207 438" );
 make_ladder( "_ladder_autosalvagefront_cloned_playgroundroof", "-2041.58 7141.5 215.154", "-4077 930 8" );
 make_ladder( "_ladder_classyjimboblue_cloned_garagesalehouse", "2468 2634 184", "-6814 4053 0" );
@@ -909,6 +914,7 @@ make_ladder( "_ladder_grocerypillar_cloned_garagesalehouse", "2468 2634 184", "-
 make_ladder( "_ladder_mobilepickup_cloned_alarmtrailer", "677.5 2966 212.223", "1675 8269 -36", "0 -180 0", "-1 0 0" );
 make_ladder( "_ladder_safehousefenceback_cloned_cullingbuddy", "-4083 7580 170", "7421 -9698 -9" );
 make_ladder( "_ladder_safehousetall_cloned_tallbuildingleft", "-885 5961 269.556", "9680 -675 -26", "0 90 0", "-1 0 0" );
+make_ladder( "_ladder_saferoofpipe_cloned_tallbuildingleft", "-885 5961 269.556", "9680 -880 -26", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_sweetrelief_cloned_autosalvageback", "-5876.19 8673.97 236.888", "112 -2069 -56" );
 make_ladder( "_ladder_tallbuildingright_cloned_tallbuildingleft", "-885 5961 269.557", "5057 6467 -2", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_trailerqol_cloned_alarmtrailer", "677.5 2966 212.223", "2555 3388 -66", "0 66 0", "0.4 0.9 0" );
@@ -919,6 +925,7 @@ make_prop( "dynamic", "_ladder_finalhouse_pipe", "models/props_downtown/gutter_d
 make_prop( "dynamic", "_ladder_grocerypillar_bust", "models/props_interiors/concretepillar01_dm_base.mdl", "-5680 6576 160.2", "0 0 0", "shadow_no" );
 make_prop( "dynamic", "_ladder_grocerypillar_prop", "models/props_interiors/concretepillar01.mdl", "-5680 6128 163.8", "0 0 0", "shadow_no" );
 make_prop( "dynamic", "_ladder_safehouse_pipe", "models/props_pipes/PipeSet02d_512_001a.mdl", "3726 -1560 160", "-90 90 0", "shadow_no", "solid_no" );
+make_prop( "dynamic", "_ladder_saferoofpipe_pipe", "models/props_mill/PipeSet08d_512_001a.mdl", "3726 -1765 158", "90 90 0", "shadow_no" );
 
 EntFire( g_UpdateName + "_ladder_grocerypillar_prop", "AddOutput", "OnBreak anv_mapfixes_ladder_grocerypillar_cloned_garagesalehouse:Kill::0:-1" );
 
@@ -1031,6 +1038,7 @@ make_brush( "_losfix_truck_jump",	"-70 -1 -10",	"70 1 10",	"2949 2885 108" );
 make_clip( "_ladder_dumpsterhouse_clip", "Everyone", 1, "-8 -16 0", "26 8 168", "1638 4032 217", "0 45 0" );
 make_clip( "_ladder_yellowhousetree_topdenial", "SI Players", 1, "-8 -32 0", "8 32 62", "2244 3123 378", "-7 0 0" );
 make_clip( "_ladder_safehousetall_clip", "SI Players", 1, "-20 -2 -2", "8 2 310", "3725 -1537 101", "0 45 0" );
+make_clip( "_playgroundhouse_clip", "Survivors", 1, "-54 -177 -35", "635 176 1176", "-2074 7312 360" );
 make_clip( "_safehousehedge_blocker", "SI Players", 1, "-690 -122 -20", "139 93 2122", "4401 -2207 438" );
 make_ladder( "_ladder_cornerhomeplants_cloned_garagesalehome", "2468 2634 184", "3773 4652 128", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_cornerhometankfight_cloned_treehousefence", "2058.5 2999.08 151.11", "1958 155 0" );
@@ -1039,6 +1047,7 @@ make_ladder( "_ladder_finalhouse_cloned_yellowhouse", "3510.5 917 182.881", "299
 make_ladder( "_ladder_mobilepickup_cloned_alarmtrailer", "677.5 2966 212.223", "1675 8269 -36", "0 -180 0", "-1 0 0" );
 make_ladder( "_ladder_safehousefenceback_cloned_cullingbuddy", "-4083 7580 170", "7421 -9698 -9" );
 make_ladder( "_ladder_safehousetall_cloned_tallbuildingleft", "-885 5961 269.556", "9680 -675 -26", "0 90 0", "-1 0 0" );
+make_ladder( "_ladder_saferoofpipe_cloned_tallbuildingleft", "-885 5961 269.556", "9680 -880 -26", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_tallbuildingright_cloned_tallbuildingleft", "-885 5961 269.557", "5057 6467 -2", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_trailerqol_cloned_alarmtrailer", "677.5 2966 212.223", "2555 3388 -66", "0 66 0", "0.4 0.9 0" );
 make_ladder( "_ladder_vinehouseqol_cloned_alarmtrailer", "677.5 2966 212.223", "-3107 6241 -32", "0 -90 0", "0 -1 0" );
@@ -1046,6 +1055,7 @@ make_ladder( "_ladder_woodhouseqol_cloned_alarmtrailer", "677.5 2966 212.223", "
 make_ladder( "_ladder_yellowhousetree_cloned_playgroundgutter", "-2041.58 7141.5 215.154", "9311 5106 -851", "3 90 6", "1 0 0" );
 make_prop( "dynamic", "_ladder_finalhouse_pipe", "models/props_downtown/gutter_downspout_straight_160_02.mdl", "3910 71 248", "0 90 0", "shadow_no" );
 make_prop( "dynamic", "_ladder_safehouse_pipe", "models/props_pipes/PipeSet02d_512_001a.mdl", "3726 -1560 160", "-90 90 0", "shadow_no", "solid_no" );
+make_prop( "dynamic", "_ladder_saferoofpipe_pipe", "models/props_mill/PipeSet08d_512_001a.mdl", "3726 -1765 158", "90 90 0", "shadow_no" );
 
 		break;
 	}
@@ -1150,6 +1160,7 @@ make_ladder( "_ladder_archright_cloned_archleft", "-8110 -2848 -200", "-11 1310 
 make_ladder( "_ladder_billboardleft_cloned_watchtower", "-8000 -5874 -128", "-1172 -1855 -2782", "0 0 -30" );
 make_ladder( "_ladder_billboardright_cloned_watchtower", "-8000 -5874 -128", "-1146 -1855 -2782", "0 0 -30" );
 make_ladder( "_ladder_busroofright_cloned_busroofleft", "-7646 -7052 64", "-16317 -13972 0", "0 180 0", "-1 0 0" );
+make_ladder( "_ladder_busrooftop_cloned_eventladderfence", "-6970 -5824 -188", "-999 -1726 336" );
 make_ladder( "_ladder_deadendbalconies_cloned_busstationphones", "-7477.93 -7051.48 -120", "-1100 3036 40" );
 make_ladder( "_ladder_endbarricadeback_cloned_cedafenceback", "-9543 -5488 -176", "3406 -1959 17" );
 make_ladder( "_ladder_endbarricadefront_cloned_cedafencefront", "-9557 -5536 -176", "3374 -1959 17" );
@@ -1172,6 +1183,7 @@ make_ladder( "_ladder_overpasslow_cloned_watchtowerbags", "-8000 -5874 -128", "-
 make_ladder( "_ladder_restroomsplatforml_cloned_startcopcarfence", "-3128 -2204 -304", "-7101 529 80", "0 90 0", "0 -1 0" );
 make_ladder( "_ladder_restroomsplatformr_cloned_startleftfence", "-3460 -1310 -304", "-8356 -3127 80", "0 180 0", "0 1 0" );
 make_ladder( "_ladder_startorangedrain_cloned_whitedumpster", "-9162 -4093 -68", "5959 2634 -103" );
+make_ladder( "_ladder_startstuckspot_cloned_archleft", "-8110 -2848 -200", "3444.1 1312 64" );
 make_ladder( "_ladder_telephonepoleB_cloned_restrictedbarricade", "-9544 -5266 -128", "-11800 3720 -16", "0 90 0", "-1 0 0" );
 make_ladder( "_ladder_telephonepoleT_cloned_restrictedbarricade", "-9544 -5266 -128", "-11800 3720 176", "0 90 0", "-1 0 0" );
 make_prop( "dynamic",		"_losblocker_fence",		"models/props_urban/fence_cover001_256.mdl",	"-6583 -5743 -247.75",		"0 180 0",		"shadow_no" );
@@ -1180,7 +1192,6 @@ make_prop( "dynamic",		"_propladder_plankb",		"models/props_swamp/plank001b_192.
 make_prop( "dynamic",		"_propladder_plankc",		"models/props_highway/plywood_01.mdl",		"-6731 -6212 -80",		"0 270 25",		"shadow_no" );
 make_prop( "dynamic",		"_propladder_venta",		"models/props_rooftop/hotel_rooftop_equip002.mdl",	"-6724 -6753 7.918",		"0 90 0",		"shadow_no" );
 make_prop( "dynamic",		"_propladder_ventb",		"models/props_rooftop/hotel_rooftop_equip002.mdl",	"-6370 -6752 80",		"0 90 0",		"shadow_no" );
-make_prop( "dynamic",		"_propladder_ventlarge",	"models/props_rooftop/vent_large1.mdl",		"-7932.47 -7509.08 88.05",	"0 270 0" );
 make_prop( "dynamic",		"_solidify_awning",		"models/props_street/awning_department_store.mdl",	"-6403.3 -5024 -102.145",	"0 180 0",		"shadow_no" );
 make_prop( "dynamic", "_guardtower_wrongway", "models/props_misc/wrongway_sign01_optimized.mdl", "-10091 -5792 110", "0 90 0", "shadow_no", "solid_no", "255 255 255", "17", "217" );
 make_prop( "dynamic", "_overpass_wrongwaya", "models/props_misc/wrongway_sign01_optimized.mdl", "-10162 -2304 80", "0 -90 0", "shadow_no", "solid_no", "255 255 255", "17", "217" );
@@ -1190,6 +1201,7 @@ make_prop( "dynamic", "_solidify_flatawningend1", "models/props_street/awning_sh
 make_prop( "dynamic", "_solidify_flatawningend2", "models/props_street/awning_short.mdl", "-8537 -8320 -108.921", "0 0 0", "shadow_no" );
 make_prop( "dynamic", "_solidify_flatawningmid", "models/props_street/awning_short.mdl", "-9216 -3712 -78.4492", "0 270 0", "shadow_no" );
 make_prop( "dynamic", "_yesdraw_billboard_nodraw", "models/props_update/c5m2_billboard_nodraw.mdl", "-9152 -6938 92", "0 -90 0", "shadow_no", "solid_no" );
+make_prop( "physics", "_hittable_dumpster",	"models/props_junk/dumpster_2.mdl",	"-8095 -600 -246", "0 0 0", "shadow_no" );
 patch_ladder( "-9260 -5130 -152", "0 14 0" );
 
 		break;
@@ -1254,6 +1266,8 @@ make_ladder( "_ladder_holefenceback_cloned_firstcrypt", "7022 -4849 197.016", "1
 make_ladder( "_ladder_holefencefront_cloned_firstcrypt", "7022 -4849 197.016", "-2697 -3866 -124", "0 75 0", "-0.96 0.26 0" );
 make_ladder( "_ladder_manholechaintran_cloned_manholeblue", "4374 1576 76.1509", "-5 -1940 -9" );
 make_ladder( "_ladder_onewayshedback_cloned_firstcrypt", "7022 -4849 197.016", "-2 825 -10" );
+make_ladder( "_ladder_onewaybackfence_cloned_middlecrypt", "7604.02 -5653.63 184", "-1657.1 1144 -16" );
+make_ladder( "_ladder_onewayleftfence_cloned_firstcrypt", "7022 -4849 197.016", "-560 985 -20" );
 make_ladder( "_ladder_overpassfence_cloned_flamingofence", "4830 3840 57", "2793 2190 1399", "17 -90 0", "0 1 0" );
 make_ladder( "_ladder_overpassjumpqol_cloned_startfence", "5940 8462 89.6381", "-2301 14862 210", "0 -90 0", "-1 0 0" );
 make_ladder( "_ladder_pinkhouseB_cloned_manholeblownwall", "3778 656 100", "69 3452 -12" );
@@ -1282,9 +1296,6 @@ make_prop( "dynamic",		"_propladder_fencea",		"models/props_fortifications/barri
 make_prop( "dynamic",		"_propladder_fenceb",		"models/props_fortifications/barricade_gate001_64_reference.mdl",	"3121 6347 26.916",		"-45 89.466 0.0493",	"shadow_no" );
 make_prop( "dynamic",		"_propladder_fencec",		"models/props_fortifications/barricade_gate001_64_reference.mdl",	"4026.17 -194.24 -0.284",	"-45 269.466 0.0493",	"shadow_no" );
 make_prop( "dynamic",		"_propladder_fenced",		"models/props_fortifications/barricade_gate001_64_reference.mdl",	"4074.17 -194.24 -0.284",	"-45 269.466 0.0493",	"shadow_no" );
-make_prop( "dynamic",		"_propladder_oildruma",		"models/props_urban/oil_drum001.mdl",		"6828 -3836 108.162",		"0 0 0" );
-make_prop( "dynamic",		"_propladder_oildrumb",		"models/props_urban/oil_drum001.mdl",		"6789 -3845 108.162",		"0 285 0" );
-make_prop( "dynamic",		"_propladder_oildrumc",		"models/props_urban/oil_drum001.mdl",		"6805.38 -3841.81 156.607",	"0 285 0" );
 make_prop( "dynamic", "_collosaldumpster_wrongwaya", "models/props_misc/wrongway_sign01_optimized.mdl", "3471 2320 320", "0 180 0", "shadow_no", "solid_no", "255 255 255", "17", "217" );
 make_prop( "dynamic", "_collosaldumpster_wrongwayb", "models/props_misc/wrongway_sign01_optimized.mdl", "3471 2140 320", "0 180 0", "shadow_no", "solid_no", "255 255 255", "17", "217" );
 make_prop( "dynamic", "_solidify_tankconcretewall_chimney", "models/props_urban/chimney007.mdl", "3500.87 5616.91 353.166", "0 180 0", "shadow_no" );
@@ -1597,6 +1608,7 @@ make_brush( "_losfix_truck",	"-1 -80 -5",	"1 80 15",	"2232 4268 12" );
 make_brush( "_losfix_van1",		"-1 -50 -8",	"1 50 8",	"2588 3542 21" );
 make_brush( "_losfix_van2",		"-40 -1 -8",	"41 1 8",	"2546 3494 21" );
 make_clip( "_ladder_startroof_clip", "SI Players", 1, "4 -28 0", "8 28 3", "2292 1340 319" );
+make_clip( "_ladder_subwaybricks_clip", "Everyone", 1, "-1 -8 0", "2 8 128", "2814 4104 16" );
 make_clip( "_meticulous_funcinfclip01", "SI Players", 1, "-1 -28 0", "3 28 74", "2293 850 322" );
 make_clip( "_meticulous_funcinfclip02", "SI Players", 1, "-8 -619 0", "185 629 1089", "3175 3371 832" );
 make_clip( "_meticulous_funcinfclip03", "SI Players", 1, "-153 -812 0", "293 308 4132", "153 2988 352" );
@@ -2408,6 +2420,8 @@ make_prop( "dynamic", "_yesdraw_longjump_wrongwaya", "models/props_misc/wrongway
 make_prop( "dynamic", "_yesdraw_longjump_wrongwayb", "models/props_misc/wrongway_sign01_optimized.mdl", "2805 3065 918", "0 -90 0", "shadow_no", "solid_no", "255 255 255", 500, 17 );
 make_prop( "dynamic", "_yesdrawgreenhouse_panels", "models/props_update/c11m1_greenhouse_nodraw.mdl", "6118.9 -632 943", "0 270 0", "shadow_no" );
 make_prop( "dynamic", "_yesdrawgreenhouse_plywood", "models/props_update/c11m1_greenhouse_plywood.mdl", "5524 -717 968", "0 270 0", "shadow_no" );
+make_prop( "dynamic", "_yesdrawgreenhouse_wrongwaya", "models/props_misc/wrongway_sign01_optimized.mdl", "6305 -633 1148", "0 180 0", "shadow_no", "solid_no", "255 255 255", 500, 17 );
+make_prop( "dynamic", "_yesdrawgreenhouse_wrongwayb", "models/props_misc/wrongway_sign01_optimized.mdl", "6305 -395 1148", "0 180 0", "shadow_no", "solid_no", "255 255 255", 500, 17 );
 local strEndUpperWalkway = clone_model( Entities.FindByClassnameNearest( "func_illusionary", Vector( 4063, 2331, 49.83 ), 1 ) );
 
 if ( strEndUpperWalkway != null )

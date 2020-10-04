@@ -34,6 +34,23 @@ function OnGameEvent_survival_round_start( params )
 	
 	if ( SessionState.MapName == "c1m2_steets" )
 		EntFire( "store_doors", "Open" );
+	else if ( SessionState.MapName == "c7m1_docks" )
+	{
+		EntFire( "tankdoorin", "Open" );
+		EntFire( "tankdoorin_button", "Kill" );
+		EntFire( "tank_sound_timer", "Disable" );
+		EntFire( "doorsound", "PlaySound" );
+		EntFire( "tank_fog", "Enable" );
+		EntFire( "tank_fog", "Disable", "", 0.5 );
+		EntFire( "big_splash", "Start" );
+		EntFire( "big_splash", "Stop", "", 2 );
+		EntFire( "coop_tank", "Trigger" );
+		EntFire( "radio_game_event", "Kill" );
+		EntFire( "tank_door_clip", "Kill" );
+		EntFire( "director", "EnableTankFrustration" );
+		EntFire( "battlefield_cleared", "UnblockNav", "", 60 );
+		EntFire( "tank_car_camera_clip", "Kill" );
+	}
 	else if ( SessionState.MapName == "c11m5_runway" )
 		EntFire( "planecrash_trigger", "Trigger", "", 16 );
 	else if ( SessionState.MapName == "c12m2_traintunnel" )
